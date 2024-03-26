@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Chat Messenger</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+</head>
+
+<body>
+    <h1>App Chat Siêu Nhanh</h1>
+    <ul id='messages'></ul>
+    <form id="chat-form">
+        <input type="text" id="chat-mes">
+        <button id="send-chat">Gửi</button>
+    </form>
+
+    <!-- Bao gồm thư viện Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Kết nối đến máy chủ Socket.IO
+        const socket = io();
+
+        // Yêu cầu người dùng nhập tên của họ
+        const name = prompt('Tên của bạn là gì?');
+
+        // Lấy các tham chiếu đến các phần tử DOM
+        const chatForm = document.querySelector('#chat-form');
+        const chatMes = document.querySelector('#chat-mes');
+        const messages = document.querySelector('#messages');
+
+        // Bộ lắng nghe sự kiện cho việc gửi biểu mẫu chat
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Lấy tin nhắn từ trường nhập
+            const message = chatMes.value;
+            // Phát tin nhắn đến máy chủ với tên của người dùng
+            socket.emit('on-chat', { name: name, message: message });
+            // Xóa trường nhập
+            chatMes.value = '';
+        });
+
+        // Bộ lắng nghe sự kiện để nhận tin nhắn từ máy chủ
+        socket.on('user-chat', (data) => {
+            console.log("🚀 ~ socket.on ~ data:", data)
+            // Tạo một mục danh sách mới để hiển thị tin nhắn
+            const chatItem = document.createElement('li');
+            // Đặt nội dung văn bản của mục danh sách để bao gồm tên của người gửi và tin nhắn
+            chatItem.textContent = `${data.name} : ${data.message}`;
+            // Thêm mục danh sách vào danh sách tin nhắn
+            messages.appendChild(chatItem);
+        });
+    </script>
+
+</body>
+
+</html>
